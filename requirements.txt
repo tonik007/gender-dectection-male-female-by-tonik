@@ -1,0 +1,7 @@
+Flask==2.3.3
+deepface==0.0.83
+pillow
+numpy
+tensorflow
+keras
+opencv-python
