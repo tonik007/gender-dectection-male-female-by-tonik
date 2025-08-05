@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>মুখ সনাক্তকারী</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        #upload-form { margin-bottom: 20px; }
+        #image-container { position: relative; display: inline-block; }
+        .face-box {
+            position: absolute;
+            border: 2px solid red;
+            box-sizing: border-box;
+            pointer-events: none;
+        }
+        .gender-text {
+            position: absolute;
+            color: white;
+            background-color: red;
+            padding: 2px 5px;
+            font-size: 14px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>মুখ সনাক্তকারী</h1>
+    <form id="upload-form" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*">
+        <input type="submit" value="আপলোড করুন">
+    </form>
+    
+    {% if filename %}
+    <h2>ফলাফল</h2>
+    <div id="image-container">
+        <img id="uploaded-image" src="{{ url_for('static', filename='uploads/' + filename) }}" alt="Uploaded Image" style="max-width: 800px;">
+        {% for result in results %}
+        <div class="face-box" style="left: {{ result['box'][0] }}px; top: {{ result['box'][1] }}px; width: {{ result['box'][2] }}px; height: {{ result['box'][3] }}px;"></div>
+        <div class="gender-text" style="left: {{ result['box'][0] }}px; top: {{ result['box'][1] - 20 }}px;">{{ result['gender'] }}</div>
+        {% endfor %}
+    </div>
+    <script>
+        window.onload = function() {
+            const img = document.getElementById('uploaded-image');
+            const container = document.getElementById('image-container');
+            const originalWidth = img.naturalWidth;
+            const originalHeight = img.naturalHeight;
+            const currentWidth = img.clientWidth;
+            const currentHeight = img.clientHeight;
+
+            const scaleX = currentWidth / originalWidth;
+            const scaleY = currentHeight / originalHeight;
+
+            const faceBoxes = document.querySelectorAll('.face-box');
+            const genderTexts = document.querySelectorAll('.gender-text');
+
+            faceBoxes.forEach(box => {
+                const left = parseFloat(box.style.left) * scaleX;
+                const top = parseFloat(box.style.top) * scaleY;
+                const width = parseFloat(box.style.width) * scaleX;
+                const height = parseFloat(box.style.height) * scaleY;
+                box.style.left = `${left}px`;
+                box.style.top = `${top}px`;
+                box.style.width = `${width}px`;
+                box.style.height = `${height}px`;
+            });
+
+            genderTexts.forEach(text => {
+                const left = parseFloat(text.style.left) * scaleX;
+                const top = parseFloat(text.style.top) * scaleY;
+                text.style.left = `${left}px`;
+                text.style.top = `${top}px`;
+            });
+        };
+    </script>
+    {% endif %}
+</body>
+</html>
